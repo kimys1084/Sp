@@ -3,15 +3,18 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <Eigen/Dense>
-
-#define WIDTH 1260
-#define HEIGHT 760
-#define PI 3.14159265
+#include "picking.h"
 
 using namespace std;
 using namespace Eigen;
 
+
+
+static bool mouseMovePressed = false;
+
 int width = 1260, height = 760;
+int lastX, lastY;
+int Move = 0;
 float cameraX = 0, cameraY = 10, cameraZ = -10;
 
 float near = 0.1, far = 100.0;
@@ -22,6 +25,57 @@ float Fovy = 50.0;
 float nearW = 0, nearH = 0;
 float farW = 0, farH = 0;
 
+Sphere O[3];
+
+void initSphere(){
+	O[0].id = 0;
+	O[0].radius = 0.5;
+	O[0].RGB[0] = 0.7, O[0].RGB[1] = 0.0, O[0].RGB[2] = 0.0;
+	O[0].curPos[0] = 0, O[0].curPos[1] = 0, O[0].curPos[2] = 2;
+
+	O[1].id = 1;
+	O[1].radius = 0.5;
+	O[1].RGB[0] = 0.0, O[1].RGB[1] = 0.7, O[1].RGB[2] = 0.0;
+	O[1].curPos[0] = 0, O[1].curPos[1] = 0, O[1].curPos[2] = 4;
+	
+	O[2].id = 2;
+	O[2].radius = 0.5;
+	O[2].RGB[0] = 0.0, O[2].RGB[1] = 0.0, O[2].RGB[2] = 0.7;
+	O[2].curPos[0] = 0, O[2].curPos[1] = 0, O[2].curPos[2] = 6;
+	return;
+}
+int intersectionCheck(float farX, float farY, float farZ){
+
+	float a = (farX - cameraX) * (farX - cameraX) + (farY - cameraY) * (farY - cameraY) + (farZ - cameraZ) * (farZ - cameraZ); 
+
+	for( int id = 0; id < 3; id++){
+		float b = 2*((farX - cameraX) * (cameraX - O[id].curPos[0]) + (farY - cameraY) * (cameraY - O[id].curPos[1]) + (farZ - cameraZ) * (cameraZ - O[id].curPos[2]));
+
+		float c = (cameraX - O[id].curPos[0]) * (cameraX - O[id].curPos[0]) + (cameraY - O[id].curPos[1]) * (cameraY - O[id].curPos[1]) + (cameraZ - O[id].curPos[2]) * (cameraZ - O[id].curPos[2]) - (O[id].radius * O[id].radius);
+
+		float delta = b*b - 4*a*c;
+		cout << delta << endl;
+		if( delta >= 0){
+			return id;
+		}
+	}
+
+	return -1; // true or false
+}
+
+void Touched(int id){
+
+
+	float R = (rand() % 10)/ 10.0;
+	float G = (rand() % 10)/ 10.0;
+	float B = (rand() % 10)/ 10.0;
+
+	O[id].RGB[0] = R;
+	O[id].RGB[1] = G;
+	O[id].RGB[2] = B;	
+
+	return;
+}
 
 void get_ratio(){
 	
@@ -56,22 +110,79 @@ void get_ratio(){
 	
 	return;
 }
-void get_unprojected_point(float mouseX, float mouseY){
+Vector3d unProject(int mouseX, int mouseY, int z){
 
-	float nearX = mouseX * nearW / WIDTH;
-	float nearY = mouseY * nearH / HEIGHT;
+	GLdouble projection[16];
+	GLdouble modelView[16];
+	GLint viewPort[4];
 
-	float farX = mouseX * farW / WIDTH;
-	float farY = mouseY * farH / HEIGHT;
+	
+	glGetDoublev(GL_PROJECTION_MATRIX,projection);
+	glGetDoublev(GL_MODELVIEW_MATRIX,modelView);
+	glGetIntegerv(GL_VIEWPORT,viewPort);
+	
+	GLfloat zCursor, winX, winY;
+	winX = (float)mouseX;
+	winY = HEIGHT - (float)mouseY;
+	zCursor = (float)z;
 
-	cout << nearX << " " << nearY << endl;
-	cout << farX << " " << farY << endl;
-	return;
+	GLdouble wx, wy, wz;
+	gluUnProject(winX,winY,zCursor, modelView, projection, viewPort, &wx, &wy, &wz);
+	
+	Vector3d ret(wx,wy,wz);
+	return ret;
+}
+
+int get_unprojected_point(float mouseX, float mouseY){
+/*
+	Vector3d ret;
+	Matrix4d Proj, Model;
+	double projData[16], modelData[16];
+	glGetDoublev(GL_PROJECTION_MATRIX,projData);
+	glGetDoublev(GL_MODELVIEW_MATRIX,modelData);
+	for(int i=0;i<4;i++)
+	{
+		for(int j=0;j<4;j++)
+		{
+			Proj(i,j) = projData[i+ j*4];
+			Model(i,j) = modelData[i+ j*4];
+		}
+	}
+	
+	Matrix4d inv_Proj = Proj.inverse();
+	
+	
+	float norm_x = static_cast<float>(mouseX)/static_cast<float>(WIDTH);
+	float norm_y = static_cast<float>(mouseY)/static_cast<float>(HEIGHT);
+	
+	norm_x = norm_x*2-1;
+	norm_y = norm_y*2-1;
+
+	
+	Vector4d near_coord(norm_x,norm_y,-1.0,1);
+	Vector4d far_coord(norm_x,norm_y,1.0,1);
+
+	near_coord = inv_Proj*near_coord;
+	far_coord = inv_Proj*far_coord;
+	
+	near_coord = Model * (near_coord / near_coord(3));
+	far_coord = Model *(far_coord / far_coord(3));
+ */
+
+	Vector3d near_coord, far_coord;
+	near_coord = unProject(mouseX, mouseY, 0);
+	far_coord = unProject(mouseX, mouseY, 1);
+
+	cout << "near -> x : "  <<  near_coord(0) << "y : "<< near_coord(1) << "z : "<< near_coord(2)<<endl;
+	cout << "far -> x : "  <<  far_coord(0) << "y : "<< far_coord(1) << "z : "<< far_coord(2)<<endl<<endl;
+	
+	return intersectionCheck(far_coord(0), far_coord(1), far_coord(2));	
 }
 
 void init(){
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
+	initSphere();
 }
 
 
@@ -82,7 +193,7 @@ void resize(int w, int h){
 	gluPerspective(Fovy, ratio, near, far);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(cameraX, cameraY, cameraZ,0,0,0,1,0,0);
+	gluLookAt(cameraX, cameraY, cameraZ,0,0,0,0,1,0);
 
 	return;
 }
@@ -91,21 +202,21 @@ void drawSphere(){
 
 	//sphere 1
 	glPushMatrix();
-		glColor3f(0.7, 0.0, 0.0);
-		glTranslatef(0,0,2);
-		glutSolidSphere(0.5f, 50, 50);
+		glColor3f(O[0].RGB[0],O[0].RGB[1], O[0].RGB[2]);
+		glTranslatef(O[0].curPos[0],O[0].curPos[1],O[0].curPos[2]);
+		glutSolidSphere(O[0].radius, 50, 50);
 	glPopMatrix();
 	glPushMatrix();
 	//sphere 2
-		glColor3f(0.0, 0.7, 0.0);
-		glTranslatef(0,0,4);
-		glutSolidSphere(0.5f, 50, 50);
+		glColor3f(O[1].RGB[0],O[1].RGB[1], O[1].RGB[2]);
+		glTranslatef(O[1].curPos[0],O[1].curPos[1],O[1].curPos[2]);
+		glutSolidSphere(O[1].radius, 50, 50);
 	glPopMatrix();
 	glPushMatrix();
 	//sphere 3
-		glColor3f(0.0, 0.0, 0.7);
-		glTranslatef(0,0,6);
-		glutSolidSphere(0.5f, 50, 50);
+		glColor3f(O[2].RGB[0],O[2].RGB[1], O[2].RGB[2]);
+		glTranslatef(O[2].curPos[0],O[2].curPos[1],O[2].curPos[2]);
+		glutSolidSphere(O[2].radius, 50, 50);
 	glPopMatrix();
 	glFlush();
 	return;
@@ -115,12 +226,6 @@ void display(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glClearColor(1.0, 1.0, 1.0, 0.0);
 	drawSphere();
-	glColor3f(1.0,0.0,1.0);
-	glPointSize(10);
-	glBegin(GL_POINTS);
-	glVertex3f(0.0,0.0,0.0);
-	glVertex3f(0.0,0.0,2);
-	glVertex3f(0.0,0.0,4);
 	glEnd();
 
 	glutSwapBuffers();
@@ -134,7 +239,9 @@ void keyboard(unsigned char keyPressed, int x, int y){
 		case 'q':
 			exit(0);
 			break;
-
+		case 's':
+			Touched(0);
+			break;
 	}
 	
 	glutPostRedisplay();		
@@ -144,11 +251,63 @@ void keyboard(unsigned char keyPressed, int x, int y){
 
 void mouse(int button, int state, int x, int y){
 
-	if( button == GLUT_LEFT_BUTTON){
-		cout << "mouse clicked!: x :"<< x <<"	y: " << y << endl;
-		get_unprojected_point(x,y);	
+	
+	if( button == GLUT_UP){
+		mouseMovePressed = false;
+
+	}
+	else if( button == GLUT_LEFT_BUTTON){
+		lastX = x;
+		lastY = y;
+		mouseMovePressed = true;
+		cout << "pixel : x :"<< x <<"	y: " << y << endl;
+		
+		int sphereID = get_unprojected_point(x, y);
+		if( sphereID >= 0){
+			Touched(sphereID);
+			Move = sphereID;
+		}
+		else{
+			Move = -1;
+		}
+	}
+	
+	glutPostRedisplay();		
+
+	return;
+}
+void moveSphere(Vector3d before, Vector3d after, int id){
+
+	float ratioX, ratioY, ratioZ;
+
+	
+	ratioX = after(0) / before(0);
+	ratioY = after(1) / before(1);
+	ratioZ = after(2) / before(2);	
+
+
+	cout<< ratioZ << endl;
+	O[id].curPos[0] *= ratioX;
+	O[id].curPos[1] *= ratioY;
+	//O[id].curPos[2] *= ratioZ;
+
+	return;
+
+}
+void motion(int x, int y){
+
+	if( mouseMovePressed == true){
+		if(Move != -1){ // move sphere
+			Vector3d before = unProject(lastX, lastY, 0);
+			Vector3d after = unProject(x, y, 0);
+			moveSphere(before, after, Move);
+		}
+		lastX = x;
+		lastY = y;
 	}
 
+
+	glutPostRedisplay();
 	return;
 }
 
@@ -164,6 +323,7 @@ int main(int argc, char** argv){
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(mouse);
+	glutMotionFunc(motion);
 	glutReshapeFunc(resize);
 	glutMainLoop();
 	return 0;
