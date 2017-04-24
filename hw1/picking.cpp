@@ -2,7 +2,11 @@
 #include <math.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
+<<<<<<< HEAD
 #include <Eigen/Dense>
+=======
+#include "libeigen/Eigen/Dense"
+>>>>>>> 2ae047d79feab53bd8a4bfca1c9c4438a71d2ec8
 #include "picking.h"
 
 using namespace std;
@@ -233,6 +237,10 @@ void mouse(int button, int state, int x, int y){
 		if( sphereID >= 0){
 			Touched(sphereID);
 			Move = sphereID;
+<<<<<<< HEAD
+=======
+			cout << "SphereID : " << sphereID  << " Touched! "<< endl;
+>>>>>>> 2ae047d79feab53bd8a4bfca1c9c4438a71d2ec8
 		}
 		else{
 			Move = -1;
@@ -254,9 +262,13 @@ void moveSphere(Vector3d nearP, Vector3d farP, int id, int mouseX, int mouseY){
 	longV = farP - nearP;
 
 	float Ratio = (longV(2) - shortV(2)) / longV(2);
+<<<<<<< HEAD
 
 	Ratio = O[id].ratio;
 	cout << Ratio <<endl;
+=======
+	Ratio = O[id].ratio;
+>>>>>>> 2ae047d79feab53bd8a4bfca1c9c4438a71d2ec8
 	Vector3d ret = unProject(mouseX, mouseY, Ratio);
 
 	O[id].curPos[0] = ret(0);
