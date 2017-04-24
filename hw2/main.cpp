@@ -19,10 +19,128 @@ OBJECT* bunny;
 VECTOR3D norm[4968*10];
 int SCALE =5;
 int rotation = 0;
-GLuint fbo;
+float depths[WIDTH*HEIGHT];
+GLuint fbo=0;
 GLuint depthBuffer;
 GLuint img;
 
+
+void drawCube(){
+
+	glBegin(GL_QUADS);
+		glNormal3f(0.0f, 0.0f, 1.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f,-0.5, 0.5);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f,-0.5, 0.5);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f,0.5, 0.5);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f,-0.5, 0.5);
+		
+		glNormal3f(0.0f, 0.0f, -1.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f,-0.5, -0.5);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f,0.5, -0.5);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f,0.5, -0.5);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f,-0.5, -0.5);
+		
+		glNormal3f(0.0f, 1.0f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f,0.5, -0.5);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f,0.5, 0.5);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f,0.5, 0.5);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f,0.5, -0.5);
+		
+		glNormal3f(0.0f, -1.0f, 1.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f,-0.5, -0.5);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f,-0.5, -0.5);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f,-0.5, 0.5);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f,-0.5, 0.5);
+
+		glNormal3f(1.0f, 0.0f, 0.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f,-0.5, -0.5);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f,0.5, -0.5);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f,0.5, 0.5);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f,-0.5, 0.5);
+
+		glNormal3f(-1.0f, 0.0f, 0.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f,-0.5, -0.5);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f,-0.5, 0.5);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f,0.5, 0.5);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f,0.5, -0.5);
+	glEnd();
+	glColor3f(0.0,0.0,0.0);
+	glBegin(GL_LINES);
+		glVertex3f(-0.5f,-0.5, 0.5);
+		glVertex3f(0.5f,-0.5, 0.5);
+		glVertex3f(0.5f,0.5, 0.5);
+		glVertex3f(-0.5f,-0.5, 0.5);
+		
+		glVertex3f(-0.5f,-0.5, -0.5);
+		glVertex3f(-0.5f,0.5, -0.5);
+		glVertex3f(0.5f,0.5, -0.5);
+		glVertex3f(0.5f,-0.5, -0.5);
+		
+		glVertex3f(-0.5f,0.5, -0.5);
+		glVertex3f(-0.5f,0.5, 0.5);
+		glVertex3f(0.5f,0.5, 0.5);
+		glVertex3f(0.5f,0.5, -0.5);
+		
+		glVertex3f(-0.5f,-0.5, -0.5);
+		glVertex3f(0.5f,-0.5, -0.5);
+		glVertex3f(0.5f,-0.5, 0.5);
+		glVertex3f(-0.5f,-0.5, 0.5);
+
+		glVertex3f(0.5f,-0.5, -0.5);
+		glVertex3f(0.5f,0.5, -0.5);
+		glVertex3f(0.5f,0.5, 0.5);
+		glVertex3f(0.5f,-0.5, 0.5);
+
+		glVertex3f(-0.5f,-0.5, -0.5);
+		glVertex3f(-0.5f,-0.5, 0.5);
+		glVertex3f(-0.5f,0.5, 0.5);
+		glVertex3f(-0.5f,0.5, -0.5);
+	glEnd();
+
+	return;
+}
+void drawSmallCube(){
+
+	glBegin(GL_QUADS);
+		glColor4f(0.0f,1.0f,0.0f,1.0f);
+		glVertex3f(-0.5f,-0.5, 0.5);
+		glVertex3f(0.5f,-0.5, 0.5);
+		glVertex3f(0.5f,0.5, 0.5);
+		glVertex3f(-0.5f,-0.5, 0.5);
+		
+		glColor4f(1.0f,0.0f,0.0f,1.0f);
+		glVertex3f(-0.5f,-0.5, -0.5);
+		glVertex3f(-0.5f,0.5, -0.5);
+		glVertex3f(0.5f,0.5, -0.5);
+		glVertex3f(0.5f,-0.5, -0.5);
+		
+		glColor4f(0.0f,0.0f,1.0f,1.0f);
+		glVertex3f(-0.5f,0.5, -0.5);
+		glVertex3f(-0.5f,0.5, 0.5);
+		glVertex3f(0.5f,0.5, 0.5);
+		glVertex3f(0.5f,0.5, -0.5);
+		
+		glColor4f(0.0f,0.0f,1.0f,1.0f);
+		glVertex3f(-0.5f,-0.5, -0.5);
+		glVertex3f(0.5f,-0.5, -0.5);
+		glVertex3f(0.5f,-0.5, 0.5);
+		glVertex3f(-0.5f,-0.5, 0.5);
+
+		glColor4f(0.0f,1.0f,1.0f,1.0f);
+		glVertex3f(0.5f,-0.5, -0.5);
+		glVertex3f(0.5f,0.5, -0.5);
+		glVertex3f(0.5f,0.5, 0.5);
+		glVertex3f(0.5f,-0.5, 0.5);
+
+		glColor4f(1.0f,0.0f,1.0f,1.0f);
+		glVertex3f(-0.5f,-0.5, -0.5);
+		glVertex3f(-0.5f,-0.5, 0.5);
+		glVertex3f(-0.5f,0.5, 0.5);
+		glVertex3f(-0.5f,0.5, -0.5);
+	glEnd();
+
+	return;
+}
 void getNormal(){
 	int v1, v2, v3;
 	float u[3];
@@ -154,7 +272,7 @@ int ReadFile(const char* filename){
 		else if( data[0] == 'v'){
 			sscanf(data, "%c %s %s %s", &ch, a,b,c);
 			bunny->V[vertexNum_][0] = atof(a)*SCALE;
-			bunny->V[vertexNum_][1] = atof(b)*SCALE;
+			bunny->V[vertexNum_][1] = atof(b)*SCALE-0.4;
 			bunny->V[vertexNum_][2] = atof(c)*SCALE;
 			vertexNum_++;
 		}
@@ -199,27 +317,75 @@ void reshape(GLint w, GLint h){
 
 	return;
 }
+void initFBO(){
+	
+	GLenum err = glewInit();
+	if(GLEW_OK != err){
+		cout << glewGetErrorString(err) << endl;
+	}
+
+
+
+
+	
+	glGenFramebuffersEXT(1,&fbo);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+	
+	glGenRenderbuffersEXT(1,&depthBuffer);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthBuffer);
+
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, WIDTH, HEIGHT);
+
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthBuffer);
+
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+
+	if(status != GL_FRAMEBUFFER_COMPLETE_EXT){
+		cout << "not working!"<< endl;
+	}
+
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+	/*glPushAttrib(GL_VIEWPORT_BIT);
+	glViewport(0,0,WIDTH, HEIGHT);
+	drawSmallCube();
+
+	glPopAttrib();
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+*/
+	glGenTextures(1, &img);
+	glBindTexture(GL_TEXTURE_2D, img);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glGenerateMipmapEXT(GL_TEXTURE_2D);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, img, 0);
+
+	return;
+}
+void deleteFBO(){
+
+	glDeleteFramebuffers(1, &fbo);
+	return;
+}
 void display(){
 
-/*
+
+
 	glPushAttrib(GL_VIEWPORT_BIT);
 	glViewport(0,0,WIDTH,HEIGHT);
 
 	glClearColor(0.0f,0.0f,0.0f,0.5f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-
-	glBegin(GL_QUADS);
-		glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-		glVertex3f(-1.0f, -1.0f, -1.0f);
-		glVertex3f(1.0f, -1.0f, 1.0f);
-		glVertex3f(1.0f, 1.0f, 1.0f);
-		glVertex3f(-1.0f, 1.0f, 1.0f);
-	glEnd();
-
+	drawSmallCube();
 	glPopAttrib();
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-*/
+	//glBindTexture();
+
 
 	rotation = (rotation+1)%360;
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -227,42 +393,40 @@ void display(){
 	
 
 // texture
-//	glGenTextures(1, &img);
-//	glBindTexture(GL_TEXTURE_2D, img);
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-//	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, img, 0);
 
-	//GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
-	//glEnable(GL_TEXTURE_2D);
-	//glViewport(0,0,WIDTH, HEIGHT);
+	glEnable(GL_TEXTURE_2D);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glPushMatrix();
-	glRotatef((GLfloat)rotation, 0.0, 1.0, 0.0);	
 	glColor3f(1.0,0.0,0.0);
-	for(int i=0; i < bunny->faceNum; i++){
+	glPushMatrix();
+	glRotatef((GLfloat)rotation, 1.0, 1.0, 0.0);	
+	/*for(int i=0; i < bunny->faceNum; i++){
 		glBegin(GL_POLYGON);
+			glNormal3f(norm[bunny->F[i][0]].x, norm[bunny->F[i][0]].y , norm[bunny->F[i][0]].z);
+			glTexCoord2f(0.0f, 1.0f);
 			glVertex3f(bunny->V[bunny->F[i][0]][0], bunny->V[bunny->F[i][0]][1], bunny->V[bunny->F[i][0]][2]);
+			glTexCoord2f(1.0f, 0.0f);
 			glVertex3f(bunny->V[bunny->F[i][1]][0], bunny->V[bunny->F[i][1]][1], bunny->V[bunny->F[i][1]][2]);
+			glTexCoord2f(1.0f, 1.0f);
 			glVertex3f(bunny->V[bunny->F[i][2]][0], bunny->V[bunny->F[i][2]][1], bunny->V[bunny->F[i][2]][2]);
-			//glVertex3f(bunny->V[bunny->F[i][0]][0], bunny->V[bunny->F[i][0]][1], bunny->V[bunny->F[i][0]][2]);
 		glEnd();
-	}
-
+	}*/
+	drawCube();
+	//drawSmallCube();
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 	glutSwapBuffers();
+
 	return;
 }
 
 
 int main(int argc, char *argv[]){
 
-	glGenFramebuffersEXT(1,&fbo);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 
 	ReadFile("bunny.obj");
 	
@@ -270,10 +434,14 @@ int main(int argc, char *argv[]){
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(WIDTH, HEIGHT);
 	glutCreateWindow("systemProgramming hw2 201621191 kys");
+	glewInit();
+	initFBO();
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
+	//glutDisplayFunc(display);
 	glutIdleFunc(display);
 	glutMainLoop();
+	deleteFBO();
 	return 0;
 }
 
