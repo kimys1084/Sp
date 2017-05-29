@@ -1,6 +1,6 @@
 
 output:
-	g++ picking.cpp -o Picking -lGL -lGLU -lglut
+	g++ main.cpp -o HW2 -lGLEW -lGL -lGLU -lglut
 
 clean:
-	rm picking
+	rm HW2
