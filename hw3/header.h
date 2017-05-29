@@ -29,19 +29,63 @@ static int lastX = 0, lastY = 0, lastZoom = 0;
 void drawXYZ(int size){
 	glPushMatrix();
 		glBegin(GL_LINES);
+			//red X
 			glColor3f(1,0,0);
 			glVertex3f(0,0,0);
 			glVertex3f(size,0,0);
-
+			//green y
 			glColor3f(0,1,0);
 			glVertex3f(0,0,0);
 			glVertex3f(0,size,0);
-		
+			//blue z
 			glColor3f(0,0,1);
 			glVertex3f(0,0,0);
 			glVertex3f(0,0,size);
 		glEnd();
 
+	glPopMatrix();
+	return;
+}
+void drawOBJ(OBJECT obj){
+	glPushMatrix();
+	glColor3f(0.5,0.5,0);
+		for(int i=0; i < obj.getFaceSize(); i++){
+			int idx1 = obj.face(i,0);
+			int idx2 = obj.face(i,1);
+			int idx3 = obj.face(i,2);
+			glBegin(GL_LINES);
+				glVertex3f(obj.vertex(idx1,0),obj.vertex(idx1,1), obj.vertex(idx1,2));
+				glVertex3f(obj.vertex(idx2,0),obj.vertex(idx2,1), obj.vertex(idx2,2));
+				glVertex3f(obj.vertex(idx3,0),obj.vertex(idx3,1), obj.vertex(idx3,2));
+				glVertex3f(obj.vertex(idx1,0),obj.vertex(idx1,1), obj.vertex(idx1,2));
+			glEnd();
+		}
+	glPopMatrix();
+	return;
+}
+
+void drawFloor(int size){
+
+	glPushMatrix();
+	glColor3f(0.65,0.65,0.65);
+	float stepSize = 0.1;
+
+	for(int i= -size; i <= size; i++){
+		glBegin(GL_LINES);
+			glVertex3f(stepSize*(float)i, 0, 0);
+			glVertex3f(stepSize*(float)i, (float)size*stepSize, 0);
+
+			glVertex3f(0, stepSize*(float)i, 0);
+			glVertex3f((float)size*stepSize, stepSize*(float)i, 0);
+			
+			glVertex3f(stepSize*(float)i, 0, 0);
+			glVertex3f(stepSize*(float)i, -(float)size*stepSize, 0);
+
+			glVertex3f(0, stepSize*(float)i, 0);
+			glVertex3f(-(float)size*stepSize, stepSize*(float)i, 0);
+		glEnd();
+
+	}
 	glPopMatrix();
 	return;
 }
