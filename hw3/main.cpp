@@ -78,8 +78,6 @@ void motion(int x, int y){
 	glutPostRedisplay();
 	return;
 }
-
-	
 void display(){
 
 	glClearColor(1.0f,1.0f,1.0f,1.0f);
@@ -108,11 +106,13 @@ int main(int argc, char *argv[]){
 
 	teapot.loadOBJFile("teapot.obj");
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA|GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(WIDTH, HEIGHT);
 	glutInitWindowPosition(WINX,WINY);
 	glutCreateWindow("systemProgramming hw2 201621191 kys");
 
+	initGL();
+	//==========================
 	camera.resize(width, height);
 	glutIdleFunc(idle);
 	glutDisplayFunc(display);
@@ -121,6 +121,7 @@ int main(int argc, char *argv[]){
 	glutMotionFunc(motion);
 	glutMouseFunc(mouse);
 	glutMainLoop();
+	//==========================
 	return 0;
 }
 

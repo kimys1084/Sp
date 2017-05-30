@@ -89,3 +89,17 @@ void drawFloor(int size){
 	glPopMatrix();
 	return;
 }
+
+void initGL(){
+
+	if(glewInit() != GLEW_OK){
+		cout << "GLEW init FAIL!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	if(!GLEW_VERSION_2_0){
+		cout << "OpenGL 2.0 not supported" << endl;
+		exit(EXIT_FAILURE);
+	}
+	return;
+}
+
