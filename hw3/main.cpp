@@ -19,7 +19,12 @@ void keyboard(unsigned char key, int x, int y){
 		case 'q':
 			exit(0);
 			break;
-
+		case 'p':
+			enableProgram = !enableProgram;
+			break;
+		case 's':
+			matShininess *=0.5f;
+			break;
 		default:
 			break;
 	}
@@ -85,6 +90,21 @@ void display(){
 	camera.apply();
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lightKa);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightKd);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, lightKs);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+	glMaterialfv(GL_FRONT, GL_SPECULAR, matKs);
+	glMaterialfv(GL_FRONT, GL_SHININESS, &matShininess);
+
+	glShadeModel(GL_SMOOTH);
+	if(enableProgram) glUseProgram(program);
+	GLint location = glGetUniformLocation(program, "freq");
+	glUniform1f(location, freq);
 
 	glPushMatrix();
 	glRotatef(180,0,1,0);
@@ -94,6 +114,8 @@ void display(){
 	drawFloor(10);
 	glPopMatrix();
 	drawOBJ(teapot);
+
+	glUseProgram(0);
 	glFlush();	
 	glutSwapBuffers();
 	return;

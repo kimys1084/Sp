@@ -63,7 +63,7 @@ void OBJECT::loadOBJFile(const char * filename){
 	V = new float*[vertexSize];
 	for (int i=0; i < vertexSize; i++){ V[i] =  new float[3]; }
 	VN = new float*[vertexNormalSize];
-	for (int i=0; i < vertexNormalSize; i++){ VN[i] = new float[3]; }
+	for (int i=0; i < vertexNormalSize; i++){ VN[i] = new float[6]; }
 
 	//---------------
 
@@ -91,16 +91,10 @@ void OBJECT::loadOBJFile(const char * filename){
 		}
 		else if( !strncmp(lineData, "f ", 2)){
 			sscanf(lineData, "%s %s %s %s", ch, buf[0], buf[1], buf[2]);
-		/*	F[f_cnt][0] = atoi(buf[0])-1;
-			F[f_cnt][1] = atoi(buf[1])-1;
-			F[f_cnt][2] = atoi(buf[2])-1; */
-			int tmp;
-			sscanf(buf[0], "%d//%d", &F[f_cnt][0], &tmp);
-			sscanf(buf[1], "%d//%d", &F[f_cnt][1], &tmp);
-			sscanf(buf[2], "%d//%d", &F[f_cnt][2], &tmp);
-			F[f_cnt][0]-=1;
-			F[f_cnt][1]-=1;
-			F[f_cnt][2]-=1;
+			sscanf(buf[0], "%d//%d", &F[f_cnt][0], &F[f_cnt][3]);
+			sscanf(buf[1], "%d//%d", &F[f_cnt][1], &F[f_cnt][4]);
+			sscanf(buf[2], "%d//%d", &F[f_cnt][2], &F[f_cnt][5]);
+			for( int i = 0; i < 6; i++){ F[f_cnt][i] -=1;} // modify index
 			f_cnt++;
 		}
 
