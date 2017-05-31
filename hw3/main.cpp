@@ -25,6 +25,18 @@ void keyboard(unsigned char key, int x, int y){
 		case 's':
 			matShininess *=0.5f;
 			break;
+		case '1':
+			light0 = !light0;
+			lightOnOffMsg(light0, key);
+			break;
+		case '2':
+			light1 = !light1;
+			lightOnOffMsg(light1, key);
+			break;
+		case '3':
+			light2 = !light2;
+			lightOnOffMsg(light2, key);
+			break;
 		default:
 			break;
 	}
@@ -85,18 +97,14 @@ void motion(int x, int y){
 }
 void display(){
 
-	glClearColor(1.0f,1.0f,1.0f,1.0f);
+	glClearColor(0.0f,0.0f,0.0f,1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	camera.apply();
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-
-	glLightfv(GL_LIGHT0, GL_AMBIENT, lightKa);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightKd);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, lightKs);
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+	
+	setLight();
 
 	glMaterialfv(GL_FRONT, GL_SPECULAR, matKs);
 	glMaterialfv(GL_FRONT, GL_SHININESS, &matShininess);
@@ -105,15 +113,17 @@ void display(){
 	if(enableProgram) glUseProgram(program);
 	GLint location = glGetUniformLocation(program, "freq");
 	glUniform1f(location, freq);
+	location = glGetUniformLocation(program, "enableStripe");
+	glUniform1i(location, enableStripe);
 
 	glPushMatrix();
 	glRotatef(180,0,1,0);
 	glRotatef(-90,1,0,0);
 	glRotatef(90,0,0,1);
-	drawXYZ(100);
-	drawFloor(10);
+	drawFloor(100);
 	glPopMatrix();
 	drawOBJ(teapot);
+	drawLightPos();
 
 	glUseProgram(0);
 	glFlush();	
