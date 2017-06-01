@@ -26,15 +26,14 @@ static int lastX = 0, lastY = 0, lastZoom = 0;
 //------ GLSL------
 
 static GLuint program = 0, vertShader = 0, fragShader = 0;
-static bool enableProgram = true;
+static bool enableProgram = false;
 static bool enableStripe = false;
 static float freq = 10.f;
 
 
 static GLfloat lightPos[4] = {-1.f, 1.f, 0.f, 0.f};
-static GLfloat lightPos2[4] = {-1.f, 1.f, 0.f, 1.f};
 static GLfloat lightPos1[4] = {3.f, 3.f, 3.f, 1.f};
-//static GLfloat lightPos2[4] = {2.f, 1.f, 2.f, 1.f};
+static GLfloat lightPos2[4] = {2.f, 1.f, 2.f, 1.f};
 
 static GLfloat lightKa[4] = {0.5f, 0.f, 0.f, 1.f};
 static GLfloat lightKd[4] = {0.5f, 0.5f, 0.f, 1.f};
@@ -147,6 +146,7 @@ void printShaderInfoLog(GLuint obj){
 		infoLog = (char*)malloc(len);
 		glGetShaderInfoLog(obj, len, &charsWritten, infoLog);
 		printf("%s\n", infoLog);
+		cout << "shader" << endl;
 		free(infoLog);
 	}
 
@@ -160,6 +160,7 @@ void printProgramInfoLog(GLuint obj){
 	if(len > 0){
 		infoLog = (char*)malloc(len);
 		glGetProgramInfoLog(obj, len, &charsWritten, infoLog);
+		cout << "program" << endl;
 		printf("%s\n", infoLog);
 		free(infoLog);
 	}
@@ -178,8 +179,9 @@ char* readFromFile(const char* filename){
 			count  = (int)fread(text, 1, count, fp);
 			text[count] = '\0';
 			fclose(fp);
+			//cout << text << endl;
 			return text;			
-		}else { fclose(fp);}
+		}else fclose(fp);
 	}
 	return NULL;
 }
@@ -193,7 +195,7 @@ GLuint createShader(const char* src, GLenum type){
 }
 void createProgram(){
 	char* vert = readFromFile("phong.vert");
-	char* frag = readFromFile("phong.frag");
+	char* frag = readFromFile("phnog.frag");
 	
 	vertShader = createShader(vert,GL_VERTEX_SHADER);
 	fragShader = createShader(frag, GL_FRAGMENT_SHADER);

@@ -37,6 +37,9 @@ void keyboard(unsigned char key, int x, int y){
 			light2 = !light2;
 			lightOnOffMsg(light2, key);
 			break;
+		case 't':
+			enableStripe = !enableStripe;
+			break;
 		default:
 			break;
 	}
@@ -123,6 +126,7 @@ void display(){
 	drawFloor(100);
 	glPopMatrix();
 	drawOBJ(teapot);
+	//glutSolidTeapot(1.25f);
 	drawLightPos();
 
 	glUseProgram(0);
@@ -141,7 +145,7 @@ int main(int argc, char *argv[]){
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(WIDTH, HEIGHT);
 	glutInitWindowPosition(WINX,WINY);
-	glutCreateWindow("systemProgramming hw2 201621191 kys");
+	glutCreateWindow("systemProgramming hw3 201621191 kys");
 
 	initGL();
 	//==========================
