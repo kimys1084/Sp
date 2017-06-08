@@ -48,9 +48,9 @@ void OBJECT::loadOBJFile(const char * filename){
 
 	//---------------------------------
 	cout << "OBJ Loading Success!" << endl;
-	cout << faceSize << endl;
-	cout << vertexSize << endl;
-	cout << vertexNormalSize << endl;
+	//cout << faceSize << endl;
+	//cout << vertexSize << endl;
+	//cout << vertexNormalSize << endl;
 
 	//---------------------------------
 

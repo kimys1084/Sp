@@ -44,6 +44,28 @@ static GLfloat matShininess = 50.0f;
 
 static bool light0 = false, light1 = false, light2 = false;
 
+
+GLuint fb0, fb1[13];
+GLuint tx0, tx1[13];
+GLuint rb0;
+
+
+
+
+void show_manual(){
+
+	printf("num 1 turn on/off light1\n");
+	printf("num 2 turn on/off light2\n");
+	printf("num 3 turn on/off light3\n");
+	printf("mouse move : rotate\n");
+	printf("shift + mouse move : translate\n");
+	printf("ctrl + mouse left button click : zoom in zoom out\n");
+	return;
+
+}
+
+
+
 void drawXYZ(int size){
 	glPushMatrix();
 		glBegin(GL_LINES);
@@ -208,19 +230,6 @@ void createProgram(){
 	return;
 }
 
-void initGL(){
-
-	if(glewInit() != GLEW_OK){
-		cout << "GLEW init FAIL!" << endl;
-		exit(EXIT_FAILURE);
-	}
-	if(!GLEW_VERSION_2_0){
-		cout << "OpenGL 2.0 not supported" << endl;
-		exit(EXIT_FAILURE);
-	}
-	createProgram();
-	return;
-}
 void cleanUp(){
 	glDetachShader(program, vertShader);
 	glDetachShader(program, fragShader);
@@ -263,5 +272,88 @@ void lightOnOffMsg(bool flag, unsigned char idx){
 	
 	if(flag) cout << "light" <<idx << " ON" << endl;
 	else cout << "light" << idx << " OFF" << endl;
+	return;
+}
+
+void initGL(){
+
+	if(glewInit() != GLEW_OK){
+		cout << "GLEW init FAIL!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	if(!GLEW_VERSION_2_0){
+		cout << "OpenGL 2.0 not supported" << endl;
+		exit(EXIT_FAILURE);
+	}
+	createProgram();
+	return;
+}
+
+void genFrameBuffer(){
+
+
+	GLenum FBOstatus;
+//Generating
+	glGenFramebuffers(1, &fb0);
+	glGenTextures(1, &tx0);
+	glGenRenderbuffers(1, &rb0);
+
+	//Binding
+	glBindTexture(GL_TEXTURE_2D, tx0);
+	glBindFramebuffer(GL_FRAMEBUFFER, fb0);
+	glBindRenderbuffer(GL_RENDERBUFFER, fb0);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,  tx0, 0);
+
+	//Depth
+
+	//Generating
+	glGenFramebuffers(13, &fb1[0]);
+	glGenTextures(13, &tx1[0]);
+
+
+	for(int i = 0; i<13; i++){
+		glBindTexture(GL_TEXTURE_2D, tx1[i]);
+		glBindFramebuffer(GL_FRAMEBUFFER, fb1[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 512, 512, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tx1[i], 0);
+	}
+
+	//Init
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
+		printf("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO\n");
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
+	return;
+}
+void deleteFBO(){
+
+
+	glDeleteFramebuffers(1, &fb0);
+	glDeleteTextures(1, &tx0);
+	glDeleteRenderbuffers(1, &rb0);
+	
+	glDeleteFramebuffers(13, &fb1[0]);
+	glDeleteTextures(13, &tx1[0]);
+
+
+
 	return;
 }

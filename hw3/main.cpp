@@ -141,6 +141,7 @@ int main(int argc, char *argv[]){
 
 
 	teapot.loadOBJFile("teapot.obj");
+	show_manual();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(WIDTH, HEIGHT);
@@ -148,6 +149,7 @@ int main(int argc, char *argv[]){
 	glutCreateWindow("systemProgramming hw3 201621191 kys");
 
 	initGL();
+	genFrameBuffer();
 	//==========================
 	camera.resize(width, height);
 	glutIdleFunc(idle);
@@ -158,6 +160,7 @@ int main(int argc, char *argv[]){
 	glutMouseFunc(mouse);
 	glutMainLoop();
 	//==========================
+	deleteFBO();
 	return 0;
 }
 
