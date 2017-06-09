@@ -357,3 +357,18 @@ void deleteFBO(){
 
 	return;
 }
+void createShadowMap(int idx){
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fb1[idx]);
+
+		glUseProgram(shadow_program);
+		GLint shadowdepthID = glGetUniformLocation(shadow_program,"shadow_depth");
+		GLfloat shadow_depth = 50;
+		glUniform1f(shadowdepthID, shadow_depth);
+
+		//drawing_part();
+		glUseProgram(0);
+	glBindFramebuffer(GL_FRAMEBUFFER,0);
+
+	return;
+}

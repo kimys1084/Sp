@@ -393,6 +393,7 @@ void drawing_part(GLfloat* camera_position, int camera_or_light) { //Drawing Par
 
 	glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
+		// 0 camera , 1 direc 2 ~7 point 1 8 ~ 12 point2
 		if(camera_or_light==0 || camera_or_light ==1 )
 			glOrtho(-15.f, 15.f, -15.f, 15.f, 0.f, 50.f);
 		else
